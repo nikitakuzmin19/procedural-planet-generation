@@ -29,21 +29,39 @@ A function that, for each tile `(x, y)`:
 
 ## Step-by-step plan (slow and verifiable)
 
-### Step 1 — Keep Level 1 output, but swap the “source”
+### Step 1 — Build the minimum noise tools first (required)
 
-- Start from your current nested loops `for y { for x { ... } }`
-- Keep the same output mapping to chars (`~ . ^`)
-- Replace only the line where you currently pick:
-  - `n = random(0..3)`
-- With:
-  - `h = noise(nx, ny, seed)`
-  - then derive the tile from `h` via thresholds
+Your current code has no noise yet, so first add these helper functions:
+
+- `lerp(a, b, t)` [blend between two values]
+- `fade(t)` [smooth blend weight]
+- `hash2(ix, iy, seed)` [deterministic pseudo-random value at integer grid points]
+- `noise2d(x, y, seed)` [uses 4 corners + interpolation]
+
+Why this step exists:
+
+- Without these helpers, `h = noise(nx, ny, seed)` cannot exist yet.
 
 Deliverable:
 
-- You can print an ASCII map every run (even if thresholds aren’t tuned yet).
+- You can call `noise2d(x, y, seed)` and get a float-like height value.
 
-### Step 2 — Confirm that noise is sampled at “positions”, not just integers
+### Step 2 — Keep your current loops, but swap the “source”
+
+From your current code:
+
+- Keep the nested loops `for y { for x { ... } }`
+- Keep output chars (`~ . ^`)
+- Replace random tile pick:
+  - from: `n = rng.gen_range(0..3)`
+  - to:   `h = noise2d(nx, ny, seed)`
+- Then classify `h` with thresholds (`sea_level`, `mountain_level`)
+
+Deliverable:
+
+- You can print an ASCII map where neighboring cells look related.
+
+### Step 3 — Confirm that noise is sampled at “positions”, not just integers
 
 Noise is usually smooth because you sample it at non-integer coordinates.
 So inside the loops do:
@@ -60,7 +78,7 @@ Quick mental check:
 
 - If you accidentally sample at pure integers all the time, you often get less smooth / more “grid-like” results.
 
-### Step 3 — Make noise output visible before classifying tiles
+### Step 4 — Make noise output visible before classifying tiles
 
 Before mapping to `~ . ^`, print/debug the raw height values.
 Options:
@@ -72,7 +90,7 @@ Deliverable:
 
 - You can clearly see that `h(x)` changes gradually (not random jumps).
 
-### Step 4 — Learn “corners + blending” with a mental model
+### Step 5 — Learn “corners + blending” with a mental model
 
 Your typical noise2D implementation is:
 
@@ -86,7 +104,7 @@ Deliverable:
 
 - You can explain to yourself: “nearby tiles share corner anchors, so they correlate.”
 
-### Step 5 — Normalize height so thresholds make sense
+### Step 6 — Normalize height so thresholds make sense
 
 Different noise functions return values in different ranges.
 You want `h01` so thresholds are stable:
@@ -100,7 +118,7 @@ Deliverable:
 
 - Tuning `sea_level` and `mountain_level` behaves predictably.
 
-### Step 6 — Tune the knobs (the only knobs you need right now)
+### Step 7 — Tune the knobs (the only knobs you need right now)
 
 Tune in this order:
 
