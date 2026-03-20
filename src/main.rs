@@ -12,18 +12,18 @@ fn hash2(ix: i32, iy: i32, seed: u32) -> f32 {
 }
 
 pub fn lerp(a: f32, b: f32, t: f32) -> f32 {
-    a + (b - a) * t;
+    a + (b - a) * t
 }
 
 pub fn fade (t: f32) -> f32 {
-    t * t * (3.0 - 2.0 * t);
+    t * t * (3.0 - 2.0 * t)
 }
 
 pub fn noise2d(x: f32, y: f32, seed: u32) -> f32 {
 
     // find lattice cell
-    let ix = floor(x) as i32;
-    let iy = floor(y) as i32;
+    let ix: i32 = x.floor() as i32;
+    let iy: i32 = y.floor() as i32;
 
     // get the position inside the square
     // its like getting how far you are from the left border
@@ -46,12 +46,14 @@ pub fn noise2d(x: f32, y: f32, seed: u32) -> f32 {
     // basically how far you are from the left border toward the right
     // v is vertical fade
     // same goes for vertical one
-    u = fade(fx);
-    v = fade(fy);
+    let u: f32 = fade(fx);
+    let v: f32 = fade(fy);
 
-    a = lerp(v00, v10, u);
-    b = lerp(v01, v11, u);
-    h = lerp(a, b, v);
+    let a: f32 = lerp(v00, v10, u);
+    let b: f32 = lerp(v01, v11, u);
+    let h: f32 = lerp(a, b, v);
+
+    h
 }
 
 fn main() {
@@ -65,12 +67,12 @@ fn main() {
     let mut rng = rand::thread_rng();
 
     // how fast height changes
-    let freq = 0.1;
+    let freq = 0.07;
 
-    let offsetx: f32 = 1000.0
-    let offsety: f32 = -2000.0
+    let offsetx: f32 = 1500.0;
+    let offsety: f32 = -1500.0;
 
-    let seed: u32 = rng.gen(); // generate random seed
+    let seed: u32 = rng.r#gen(); // generate random seed
 
     // randomly create terrain
     for _y in 0..height {
