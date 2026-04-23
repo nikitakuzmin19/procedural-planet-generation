@@ -1,6 +1,7 @@
-//! v0.2 — Noise-based terrain: value noise height field + thresholds (~ . ^).
+// v2 noise based terrain generation also called value noise
 
 use rand::Rng;
+use image::RgbImage;
 
 fn hash2(ix: i32, iy: i32, seed: u32) -> f32 {
     let mut h = seed;
@@ -39,40 +40,44 @@ fn noise2d(x: f32, y: f32, seed: u32) -> f32 {
 }
 
 fn main() {
-    let width = 80;
-    let height = 30;
+    let width = 200;
+    let height = 200;
 
     let mut grid: Vec<Vec<char>> = Vec::new();
     let mut rng = rand::thread_rng();
 
-    let freq = 0.1_f32;
+    let freq = 0.01_f32;
     let offset_x: f32 = 1000.0;
     let offset_y: f32 = -2000.0;
-    let seed: u32 = rng.gen();
+    let seed: u32 = rng.r#gen();
 
+    let mut img = RgbImage::new(width, height);
+ 
     for _y in 0..height {
-        let mut row = Vec::new();
+        //let mut row = Vec::new();
         for _x in 0..width {
             let nx = (_x as f32) * freq + offset_x;
             let ny = (_y as f32) * freq + offset_y;
             let h = noise2d(nx, ny, seed);
 
-            let tile = if h < 0.4 {
-                '~'
+            if h < 0.4 {
+                img.put_pixel(_x, _y, image::Rgb([54, 116, 181]));
             } else if h < 0.75 {
-                '.'
+                img.put_pixel(_x, _y, image::Rgb([95, 164, 72]));
             } else {
-                '^'
+                img.put_pixel(_x, _y, image::Rgb([171, 171, 171]));
             };
-            row.push(tile);
+            //row.push(tile);
         }
-        grid.push(row);
+        //grid.push(row);
     }
 
-    for row in grid {
-        for tile in row {
-            print!("{}", tile);
-        }
-        println!();
-    }
+    img.save("terrain.png");
+
+    // for row in grid {
+    //     for tile in row {
+    //         print!("{}", tile);
+    //     }
+    //     println!();
+    // }
 }
